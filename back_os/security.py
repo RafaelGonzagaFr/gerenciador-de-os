@@ -4,18 +4,17 @@ from zoneinfo import ZoneInfo
 
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from jwt import PyJWTError
-from jwt import ExpiredSignatureError, decode, encode
+from jwt import ExpiredSignatureError, PyJWTError, decode, encode
 from pwdlib import PasswordHash
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.database import get_session
-from backend.models import User
-from backend.settings import Settings, settings
+from back_os.database import get_session
+from back_os.models import User
+from back_os.settings import Settings, settings
 
 pwd_context = PasswordHash.recommended()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=settings.token_url)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 
 def create_access_token(data: dict):
@@ -63,7 +62,7 @@ def get_current_user(
     except PyJWTError:
         raise credentials_exception
 
-    user = session.scalar(select(User).where(User.email == username))
+    user = session.scalar(select(User).where(User.username == username))
 
     if not user:
         raise credentials_exception

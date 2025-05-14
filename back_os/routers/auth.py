@@ -22,7 +22,7 @@ def login_for_access_token(
 ):
     """Rota de token"""
     user = session.scalar(
-        select(User).where(User.email == form_data.username)
+        select(User).where(User.username == form_data.username)
     )
 
     if not user:
@@ -34,9 +34,9 @@ def login_for_access_token(
     if not verify_password(form_data.password, user.password):
         raise HTTPException(
             status_code=HTTPStatus.UNAUTHORIZED,
-            detail='Incorrect email or password',
+            detail='Incorrect username or password',
         )
 
-    access_token = create_access_token(data={'sub': user.email})
+    access_token = create_access_token(data={'sub': user.username})
 
     return {'access_token': access_token, 'token_type': 'bearer'}

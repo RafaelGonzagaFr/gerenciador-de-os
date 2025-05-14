@@ -1,14 +1,31 @@
 from datetime import datetime
-from sqlalchemy.orm import Mapped, registry
+from enum import Enum
+
+from sqlalchemy import func
+from sqlalchemy.orm import Mapped, mapped_column, registry
 
 table_registry = registry()
+
+
+class TipoDeUsuario(str, Enum):
+    adm = 'adm'
+    tecnico = 'tecnico'
 
 
 @table_registry.mapped_as_dataclass
 class User:
     __tablename__ = 'users'
 
-    id: Mapped[int]
-    username: Mapped[str]
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    username: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str]
-    created_at: Mapped[datetime]
+    tipo: Mapped[TipoDeUsuario]
+    created_at: Mapped[datetime] = mapped_column(
+        init=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        init=False,
+        onupdate=func.now(),
+        nullable=True,
+        server_default=func.now(),
+    )
