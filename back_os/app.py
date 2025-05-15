@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from back_os.routers import auth, users
+from back_os.routers import auth, users, os
 
 app = FastAPI(
   title="OS Manager",
@@ -11,3 +11,4 @@ app = FastAPI(
 
 app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(os.router)
