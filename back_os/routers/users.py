@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from back_os.database import get_session
 from back_os.models import User
-from back_os.schemas import UserPublic, UserSchema
+from back_os.schemas import UserPublic, UserSchema, UserList
 from back_os.security import get_current_user, get_password_hash
 
 router = APIRouter(prefix='/users', tags=['users'])
@@ -49,3 +49,10 @@ def create_user(user: UserSchema, session: T_Session, current_user: T_CurrentUse
         raise HTTPException(
             status_code=HTTPStatus.FORBIDDEN, detail='Sem permissão para criar um usuário'
         )
+    
+@router.get('/', status_code=HTTPStatus.OK, response_model=UserList)
+def listar_usuarios(session: T_Session, current_user: T_CurrentUser):
+    if current_user.tipo == 'adm':
+        users=session.scalars(select(User))
+        return {'users': users}
+
