@@ -36,8 +36,21 @@ def listar_os(session: T_Session, current_user: T_CurrentUser):
     ordens = session.scalars(select(Os))
     return {'ordens': ordens}
 
+@router.put('/alterar/{os_id}', status_code=HTTPStatus.OK, response_model=OsPublic)
+def alterar_os(session: T_Session, current_user: T_CurrentUser, os_id: int, os: OsSchema):
+    db_os = session.query(Os).where(Os.id == os_id).first()
+    if not db_os:
+        raise HTTPException(status_code=404, detail='Os Não encontrada')
+    db_os.cliente = os.cliente
+    db_os.titulo = os.titulo
+    db_os.descricao = os.descricao
+    session.commit()
+    session.refresh(db_os)
+
+    return db_os
+
 @router.put('/{os_id}', status_code=HTTPStatus.OK, response_model=OsPublic)
-def concluir_os(session: T_Session, current_user: T_CurrentUser, os_id: int):
+def alterar_status_os_concluida(session: T_Session, current_user: T_CurrentUser, os_id: int):
     db_os = session.query(Os).where(Os.id == os_id).first()
     if not db_os:
         raise HTTPException(status_code=404, detail='Os Não encontrada')
@@ -45,5 +58,5 @@ def concluir_os(session: T_Session, current_user: T_CurrentUser, os_id: int):
     session.commit()
     session.refresh(db_os)
 
-    return {'Aviso': 'Status da Os alterada para Aprovado'}
+    return db_os
     
