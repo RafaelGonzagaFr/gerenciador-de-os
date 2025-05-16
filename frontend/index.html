@@ -1,0 +1,199 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Sistema de OS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f0f2f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .login-container {
+      background: white;
+      padding: 2.5rem 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-container h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #2c3e50;
+    }
+
+    .form-control:focus {
+      box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+      border-color: #3498db;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background-color: #3498db;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: #2980b9;
+    }
+
+    .alert {
+      margin-top: 1rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-container">
+  <h1>Login</h1>
+  <form id="loginForm">
+    <div class="mb-3">
+      <label for="username" class="form-label">Usuário</label>
+      <input type="text" class="form-control" id="username" placeholder="Digite seu usuário" required>
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Senha</label>
+      <input type="password" class="form-control" id="password" placeholder="Digite sua senha" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Entrar</button>
+    <div class="alert alert-danger" id="loginError">Usuário ou senha inválidos</div>
+  </form>
+</div>
+
+<script>
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    const formData = new URLSearchParams();
+    formData.append('username', username);
+    formData.append('password', password);
+
+    const res = await fetch('http://localhost:8000/token/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData
+    });
+
+    const errorAlert = document.getElementById('loginError');
+
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem('token', data.access_token);
+      window.location.href = './dashboard.html';
+    } else {
+      errorAlert.style.display = 'block';
+    }
+  });
+</script>
+
+</body>
+</html>
+=======
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de OS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4">Login</h1>
+    <form id="loginForm">
+        <div class="mb-3">
+            <label for="username" class="form-label">Usuário</label>
+            <input type="text" class="form-control" id="username" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Senha</label>
+            <input type="password" class="form-control" id="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Entrar</button>
+    </form>
+</div>
+
+<script>
+    let token = ''
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        const formData = new URLSearchParams();
+        formData.append('username', username);
+        formData.append('password', password);
+
+        const res = await fetch('http://localhost:8000/token/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            localStorage.setItem('token', data.access_token);
+            window.location.href = './dashboard.html';
+             // redireciona para a nova página
+        } else {
+            alert('Login inválido');
+        }
+    });
+
+    document.getElementById('loadOsBtn').addEventListener('click', async () => {
+        const res = await fetch('http://localhost:8000/os/', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            const osList = document.getElementById('osList');
+            osList.innerHTML = '';
+            data.ordens.forEach(os => {
+                const item = document.createElement('li');
+                item.className = 'list-group-item';
+                item.textContent = `${os.id}: ${os.cliente} - ${os.titulo} (${os.status})`;
+                osList.appendChild(item);
+            });
+        }
+    });
+
+    document.getElementById('createOsForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const cliente = document.getElementById('cliente').value;
+        const titulo = document.getElementById('titulo').value;
+        const descricao = document.getElementById('descricao').value;
+
+        const res = await fetch('http://localhost:8000/os/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ cliente, titulo, descricao })
+        });
+
+        if (res.ok) {
+            alert('OS criada com sucesso');
+            document.getElementById('createOsForm').reset();
+        } else {
+            alert('Erro ao criar OS');
+        }
+    });
+</script>
+</body>
+</html>
+>>>>>>> 7aa40aef4494672cb879af888470b67d4bdd8a73
